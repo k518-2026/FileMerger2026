@@ -1,0 +1,641 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>ファイル統合ツール マニュアル</title>
+<link rel="icon" href="app.ico">
+<style>
+  :root {
+    --blue: #1f6fd0;
+    --blue-dark: #14508f;
+    --blue-soft: #eaf2fd;
+    --ink: #1c2430;
+    --muted: #5c6773;
+    --line: #dfe5ec;
+    --bg: #f6f8fb;
+    --word: #2b579a;
+    --pdf: #cf3025;
+    --excel: #1e7145;
+    --ppt: #d24726;
+    --image: #7b4bc4;
+    --text: #55606d;
+  }
+
+  * { box-sizing: border-box; }
+
+  html { scroll-behavior: smooth; scroll-padding-top: 1rem; }
+
+  body {
+    margin: 0;
+    background: var(--bg);
+    color: var(--ink);
+    font-family: "Segoe UI", "Yu Gothic UI", "Hiragino Sans", "Noto Sans JP", sans-serif;
+    line-height: 1.85;
+    font-size: 15px;
+  }
+
+  .layout {
+    display: grid;
+    grid-template-columns: 250px minmax(0, 1fr);
+    gap: 2.5rem;
+    max-width: 1180px;
+    margin: 0 auto;
+    padding: 0 1.5rem 5rem;
+  }
+
+  /* ---- 目次 ---- */
+  nav {
+    position: sticky;
+    top: 0;
+    align-self: start;
+    max-height: 100vh;
+    overflow-y: auto;
+    padding: 2rem 0;
+  }
+  nav .brand {
+    display: flex;
+    align-items: center;
+    gap: .6rem;
+    font-weight: 700;
+    font-size: 1rem;
+    margin-bottom: 1.2rem;
+    color: var(--blue-dark);
+  }
+  nav .brand img { width: 32px; height: 32px; }
+  nav ol { list-style: none; margin: 0; padding: 0; counter-reset: sec; }
+  nav li { counter-increment: sec; }
+  nav a {
+    display: block;
+    padding: .35rem .7rem;
+    border-left: 3px solid transparent;
+    color: var(--muted);
+    text-decoration: none;
+    font-size: .89rem;
+    line-height: 1.5;
+  }
+  nav a::before { content: counter(sec) ". "; color: #9aa5b1; }
+  nav a:hover { color: var(--blue); border-left-color: var(--blue); background: var(--blue-soft); }
+
+  /* ---- 本文 ---- */
+  main { padding: 2rem 0; min-width: 0; }
+
+  header.hero {
+    background: linear-gradient(135deg, var(--blue) 0%, var(--blue-dark) 100%);
+    color: #fff;
+    border-radius: 14px;
+    padding: 2rem 2.2rem;
+    display: flex;
+    align-items: center;
+    gap: 1.4rem;
+    margin-bottom: 2.5rem;
+  }
+  header.hero img { width: 72px; height: 72px; flex: none; }
+  header.hero h1 { margin: 0 0 .2rem; font-size: 1.6rem; letter-spacing: .01em; }
+  header.hero p { margin: 0; opacity: .9; font-size: .95rem; }
+
+  section { margin-bottom: 3rem; scroll-margin-top: 1rem; }
+
+  h2 {
+    font-size: 1.25rem;
+    margin: 0 0 1rem;
+    padding-bottom: .5rem;
+    border-bottom: 2px solid var(--line);
+  }
+  h3 {
+    font-size: 1.03rem;
+    margin: 1.8rem 0 .6rem;
+    display: flex;
+    align-items: center;
+    gap: .5rem;
+  }
+  h3 .dot { width: 10px; height: 10px; border-radius: 3px; background: var(--blue); flex: none; }
+  h3.word .dot { background: var(--word); }
+  h3.pdf .dot { background: var(--pdf); }
+  h3.excel .dot { background: var(--excel); }
+  h3.ppt .dot { background: var(--ppt); }
+  h3.image .dot { background: var(--image); }
+  h3.text .dot { background: var(--text); }
+
+  p { margin: .6rem 0; }
+  ul, ol { padding-left: 1.4rem; }
+  li { margin: .25rem 0; }
+
+  code {
+    background: #eef1f6;
+    border-radius: 4px;
+    padding: .1em .4em;
+    font-family: "Cascadia Mono", Consolas, "Courier New", monospace;
+    font-size: .88em;
+  }
+  pre {
+    background: #1f2733;
+    color: #e6edf3;
+    border-radius: 8px;
+    padding: 1rem 1.2rem;
+    overflow-x: auto;
+    font-size: .85rem;
+    line-height: 1.6;
+  }
+  pre code { background: none; color: inherit; padding: 0; }
+
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    margin: 1rem 0;
+    background: #fff;
+    border-radius: 8px;
+    overflow: hidden;
+    box-shadow: 0 1px 2px rgba(20,40,70,.07);
+    font-size: .92rem;
+  }
+  th, td { padding: .6rem .85rem; text-align: left; vertical-align: top; border-bottom: 1px solid var(--line); }
+  th { background: var(--blue-soft); color: var(--blue-dark); font-weight: 600; white-space: nowrap; }
+  tbody tr:last-child td { border-bottom: none; }
+  td code { white-space: nowrap; }
+
+  .steps { counter-reset: step; list-style: none; padding: 0; }
+  .steps li {
+    counter-increment: step;
+    position: relative;
+    padding: .1rem 0 1rem 2.8rem;
+    margin: 0;
+  }
+  .steps li::before {
+    content: counter(step);
+    position: absolute;
+    left: 0; top: .15rem;
+    width: 1.9rem; height: 1.9rem;
+    border-radius: 50%;
+    background: var(--blue);
+    color: #fff;
+    display: grid;
+    place-items: center;
+    font-size: .85rem;
+    font-weight: 700;
+  }
+  .steps strong { display: block; }
+
+  .note, .warn {
+    border-left: 4px solid var(--blue);
+    background: #fff;
+    border-radius: 0 8px 8px 0;
+    padding: .8rem 1.1rem;
+    margin: 1.1rem 0;
+    font-size: .93rem;
+    box-shadow: 0 1px 2px rgba(20,40,70,.06);
+  }
+  .warn { border-left-color: #e0a020; }
+  .note b, .warn b { display: block; margin-bottom: .2rem; }
+
+  .faq { background: #fff; border-radius: 8px; padding: .2rem 1.1rem; box-shadow: 0 1px 2px rgba(20,40,70,.06); }
+  .faq details { border-bottom: 1px solid var(--line); }
+  .faq details:last-child { border-bottom: none; }
+  .faq summary { cursor: pointer; padding: .85rem 0; font-weight: 600; }
+  .faq summary::marker { color: var(--blue); }
+  .faq details p { margin: 0 0 .9rem; color: var(--muted); }
+
+  footer {
+    max-width: 1180px;
+    margin: 0 auto;
+    padding: 1.5rem;
+    color: var(--muted);
+    font-size: .85rem;
+    border-top: 1px solid var(--line);
+  }
+
+  @media (max-width: 900px) {
+    .layout { grid-template-columns: 1fr; gap: 0; }
+    nav { position: static; max-height: none; padding-bottom: 0; }
+    nav ol { display: flex; flex-wrap: wrap; gap: .2rem; }
+    nav a { border-left: none; border-radius: 6px; background: #fff; }
+    header.hero { flex-direction: column; text-align: center; }
+  }
+
+  @media print {
+    nav { display: none; }
+    body { background: #fff; font-size: 11pt; }
+    .layout { display: block; max-width: none; padding: 0; }
+    header.hero { background: none; color: var(--ink); border: 1px solid var(--line); }
+    section { break-inside: avoid; }
+    pre { background: #f3f4f6; color: #222; border: 1px solid var(--line); }
+  }
+</style>
+</head>
+<body>
+
+<div class="layout">
+
+<nav>
+  <div class="brand"><img src="app.ico" alt=""> ファイル統合ツール</div>
+  <ol>
+    <li><a href="#about">このアプリについて</a></li>
+    <li><a href="#setup">動作環境と導入</a></li>
+    <li><a href="#screen">画面の見かた</a></li>
+    <li><a href="#basic">基本の手順</a></li>
+    <li><a href="#kinds">扱えるファイルの一覧</a></li>
+    <li><a href="#detail">統合方法ごとの説明</a></li>
+    <li><a href="#options">オプションの意味</a></li>
+    <li><a href="#encoding">文字コードの扱い</a></li>
+    <li><a href="#faq">よくある質問</a></li>
+    <li><a href="#limits">制限事項</a></li>
+    <li><a href="#extend">統合方法を増やす</a></li>
+  </ol>
+</nav>
+
+<main>
+
+<header class="hero">
+  <img src="app.ico" alt="ファイル統合ツールのアイコン">
+  <div>
+    <h1>ファイル統合ツール</h1>
+    <p>ばらばらのファイルを、種類に合ったやり方で 1 つにまとめる Windows アプリ</p>
+  </div>
+</header>
+
+<section id="about">
+  <h2>このアプリについて</h2>
+  <p>
+    PDF、画像、Excel、Word、PowerPoint、CSV、テキストなど、種類の違うファイルを
+    それぞれに適したやり方で 1 つにまとめます。
+    追加したファイルの拡張子を見て統合方法を自動で選ぶので、
+    ふだんは <b>ファイルを放り込んで [統合する] を押すだけ</b>で終わります。
+  </p>
+  <p>
+    「PDF を結合するソフト」「画像を PDF にするソフト」と用途ごとに使い分ける必要がなく、
+    並び順の入れ替えや文字コードの調整も同じ画面でできます。
+  </p>
+</section>
+
+<section id="setup">
+  <h2>動作環境と導入</h2>
+  <table>
+    <tr><th>OS</th><td>Windows 10 / 11（64 ビット）</td></tr>
+    <tr><th>実行に必要なもの</th><td>.NET 8 デスクトップ ランタイム（自己完結型で配布した場合は不要）</td></tr>
+    <tr><th>ビルドに必要なもの</th><td>Visual Studio 2022 または .NET 8 SDK</td></tr>
+  </table>
+
+  <p>ソースからビルドする場合は、ソリューションを開いて F5 を押すだけです。</p>
+<pre><code>dotnet restore
+dotnet build -c Release
+dotnet run --project FileMerger</code></pre>
+
+  <p>ランタイムの入っていない PC へ配る場合は、実行ファイル 1 つにまとめられます。</p>
+<pre><code>dotnet publish FileMerger -c Release -r win-x64 --self-contained true ^
+  -p:PublishSingleFile=true -p:IncludeNativeLibrariesForSelfExtract=true</code></pre>
+
+  <div class="note">
+    <b>インストール作業は不要です</b>
+    レジストリを触らず、設定ファイルも作りません。フォルダーごとコピーすれば動き、
+    削除したいときはフォルダーごと消すだけです。
+  </div>
+</section>
+
+<section id="screen">
+  <h2>画面の見かた</h2>
+  <table>
+    <thead><tr><th>場所</th><th>役割</th></tr></thead>
+    <tbody>
+      <tr><td>メニューバー</td><td>[ヘルプ] から扱えるファイルの一覧（F1）とこのマニュアルを開けます。</td></tr>
+      <tr><td>ツールバー</td><td>ファイルの追加・削除と、並び順の入れ替え。</td></tr>
+      <tr><td>ファイル一覧</td><td>統合するファイルと、その順番。<b>上から順につながります。</b></td></tr>
+      <tr><td>出力の設定</td><td>統合方法、オプション、保存先。</td></tr>
+      <tr><td>ログ</td><td>処理の経過とエラーの内容。</td></tr>
+      <tr><td>[統合する]</td><td>実行。処理中は [中止] に変わります。</td></tr>
+    </tbody>
+  </table>
+  <p>
+    ファイル一覧はエクスプローラーからの<b>ドラッグ＆ドロップ</b>に対応しています。
+    フォルダーを落とすと、その中のファイルがまとめて追加されます。
+    選択中の行は <code>Delete</code> キーで削除できます。
+  </p>
+</section>
+
+<section id="basic">
+  <h2>基本の手順</h2>
+  <ol class="steps">
+    <li>
+      <strong>ファイルを追加する</strong>
+      ウィンドウにドラッグ＆ドロップするか、[ファイルを追加] / [フォルダーを追加] で選びます。
+      同じファイルを二重に追加しようとした場合は自動で除かれます。
+    </li>
+    <li>
+      <strong>順番を整える</strong>
+      一覧の上から順に結合されます。[▲ 上へ] [▼ 下へ] で動かすか、[名前順に並べ替え] を使います。
+      ファイル名に <code>01_</code> <code>02_</code> のような連番を付けておくと一度で並びます。
+    </li>
+    <li>
+      <strong>統合方法とオプションを確認する</strong>
+      通常は [自動で判定する] のままで構いません。判定結果は [出力の設定] の見出しに表示されます。
+      意図と違うときだけ手動で選んでください。
+    </li>
+    <li>
+      <strong>保存先を決めて [統合する]</strong>
+      保存先は 1 つ目のファイルと同じフォルダーに <code>統合結果</code> という名前で自動入力されます。
+      変更したいときは [参照...] から選び直します。
+    </li>
+  </ol>
+  <div class="warn">
+    <b>元のファイルは変更されません</b>
+    このアプリは読み取りしか行わず、結果は新しいファイルとして書き出します。
+    ただし保存先に既存のファイルを指定すると上書きの確認が出ますので、その場合はご注意ください。
+  </div>
+</section>
+
+<section id="kinds">
+  <h2>扱えるファイルの一覧</h2>
+  <p>アプリの [ヘルプ] → [扱えるファイルの一覧]（F1）でも同じ表を確認できます。</p>
+  <table>
+    <thead><tr><th>統合方法</th><th>扱えるファイル</th><th>出力</th></tr></thead>
+    <tbody>
+      <tr><td>PDF を 1 つに結合</td><td><code>.pdf</code></td><td><code>.pdf</code></td></tr>
+      <tr><td>画像を 1 つの PDF にまとめる</td><td><code>.jpg</code> <code>.jpeg</code> <code>.png</code> <code>.bmp</code> <code>.gif</code> <code>.tif</code> <code>.tiff</code> <code>.webp</code></td><td><code>.pdf</code></td></tr>
+      <tr><td>Excel ブックを結合</td><td><code>.xlsx</code> <code>.xlsm</code> <code>.csv</code> <code>.tsv</code></td><td><code>.xlsx</code></td></tr>
+      <tr><td>Word 文書を 1 つに結合</td><td><code>.docx</code></td><td><code>.docx</code></td></tr>
+      <tr><td>PowerPoint を 1 つに結合</td><td><code>.pptx</code> <code>.pptm</code></td><td><code>.pptx</code></td></tr>
+      <tr><td>CSV / TSV を 1 つの表に結合</td><td><code>.csv</code> <code>.tsv</code></td><td><code>.csv</code></td></tr>
+      <tr><td>テキストとして結合</td><td><code>.txt</code> <code>.md</code> <code>.log</code> <code>.json</code> <code>.xml</code> <code>.html</code> <code>.css</code> <code>.js</code> <code>.sql</code> <code>.yaml</code> <code>.srt</code> ほか</td><td><code>.txt</code></td></tr>
+      <tr><td>そのまま連結（バイナリ）</td><td>上記以外のすべて</td><td>任意</td></tr>
+    </tbody>
+  </table>
+  <div class="note">
+    <b>自動判定のしくみ</b>
+    この表の上から順に照合し、追加したファイルの拡張子が<b>すべて</b>収まる最初の方法が使われます。
+    たとえば <code>.csv</code> だけなら「CSV / TSV を 1 つの表に結合」、
+    <code>.xlsx</code> と <code>.csv</code> が混ざっていれば「Excel ブックを結合」が選ばれます。
+    種類がばらばらで一致するものがない場合は、[統合方法] から手動で選んでください。
+  </div>
+</section>
+
+<section id="detail">
+  <h2>統合方法ごとの説明</h2>
+
+  <h3 class="pdf"><span class="dot"></span>PDF を 1 つに結合</h3>
+  <p>
+    追加した順にページをつなぎます。ページの大きさや向きは元のまま保たれるので、
+    A4 と A3 が混ざっていてもそれぞれのサイズで残ります。
+    暗号化された PDF は開けません。しおり（ブックマーク）は引き継がれません。
+  </p>
+
+  <h3 class="image"><span class="dot"></span>画像を 1 つの PDF にまとめる</h3>
+  <p>1 枚の画像が 1 ページになります。ページの作り方を 2 通りから選べます。</p>
+  <table>
+    <thead><tr><th>設定</th><th>動き</th><th>向いている場面</th></tr></thead>
+    <tbody>
+      <tr><td>A4 に合わせる</td><td>縦横比を保ったまま A4 に収め、余白を付けて中央に置く。横長の画像は自動で横向きページ。</td><td>印刷して配る資料</td></tr>
+      <tr><td>画像と同じ大きさ</td><td>画像の寸法そのままのページを作り、余白なしで貼る。</td><td>画面で見るだけ、余白を入れたくないとき</td></tr>
+    </tbody>
+  </table>
+  <p>複数ページの TIFF は自動で 1 ページずつ展開されます。スキャナーで読み取った書類をまとめるのに便利です。</p>
+
+  <h3 class="excel"><span class="dot"></span>Excel ブックを結合</h3>
+  <p>[Excel の並べ方] から 4 通り選べます。CSV を混ぜて追加することもできます。</p>
+  <table>
+    <thead><tr><th>並べ方</th><th>動き</th><th>向いている場面</th></tr></thead>
+    <tbody>
+      <tr><td>シートごとに分けて入れる</td><td>入力ブックのシートを書式・数式ごと 1 冊に集める。</td><td>元の見た目を崩したくないとき</td></tr>
+      <tr><td>1 枚のシートに縦連結<br>（列の位置どおり）</td><td>左から数えた列位置をそのまま合わせて下へ積む。</td><td>同じテンプレートで作られた表</td></tr>
+      <tr><td>1 枚のシートに縦連結<br>（見出し名で列をそろえる）</td><td>1 行目の見出し名を突き合わせ、列の順番や有無が違っても正しい列へ入れる。</td><td>支店ごと・月ごとに列が微妙に違う表</td></tr>
+      <tr><td>1 枚のシートに横並び</td><td>ファイルごとのブロックを右へ並べる。</td><td>期間や条件を横に見比べたいとき</td></tr>
+    </tbody>
+  </table>
+  <p>
+    縦連結の 2 つは、複数シートを持つブックでもシート単位に分解して 1 枚にまとめます。
+    <b>[「元ファイル」列を追加する]</b> をオンにしておくと各行の末尾に由来が残るので、
+    統合したあとピボットテーブルでファイル別に分け直せます。
+  </p>
+  <p>
+    <b>見出し名でそろえるモード</b>では、どのファイルにも無い列は空欄になり、
+    見出しが空のセルは <code>列3</code> のように位置で名前が付きます。
+    列名は前後の空白と大文字小文字を無視して突き合わせます。
+  </p>
+  <div class="warn">
+    <b>縦・横連結は値のみを写します</b>
+    セルの書式、結合セル、数式、グラフは引き継がれません。見た目ごと残したい場合は
+    [シートごとに分けて入れる] を使ってください。
+  </div>
+
+  <h3 class="word"><span class="dot"></span>Word 文書を 1 つに結合</h3>
+  <p>
+    1 つ目の文書を土台にして、2 つ目以降を差し込みます。
+    それぞれの書式・見出し・図はそのまま残ります。
+    [ファイルの区切りで改ページ] をオンにすると、文書の境目で改ページが入ります。
+  </p>
+  <div class="warn">
+    <b>Word で開いたときに完成します</b>
+    2 つ目以降は、Word が文書を開いた時点で展開されるしくみ（AltChunk）で格納しています。
+    ファイル自体は正しく作られていますが、Word 以外のビューアーでは 1 つ目の内容しか
+    見えないことがあります。心配な場合は一度 Word で開いて上書き保存してください。
+    ヘッダー・フッターやページ設定は 1 つ目の文書のものが優先されます。
+  </div>
+
+  <h3 class="ppt"><span class="dot"></span>PowerPoint を 1 つに結合</h3>
+  <p>
+    1 つ目のファイルを土台にして、2 つ目以降のスライドを取り込みます。
+    スライドが使っているレイアウト・スライドマスター・画像も一緒に写るため、
+    <b>デザインの違うファイルを混ぜても各スライドの見た目は元のまま</b>保たれます。
+    その分、デザインの数だけスライドマスターが増えます。
+  </p>
+  <div class="warn">
+    <b>スライドの比率はそろえておく</b>
+    画面サイズ（16:9 / 4:3）は 1 つ目のファイルのものが全体に適用されます。
+    比率の違うファイルを混ぜると 2 つ目以降で図形の位置がずれることがあります。
+    あらかじめそろえておくか、統合後に PowerPoint の [デザイン] → [スライドのサイズ] で調整してください。
+    <code>.pptm</code> を含む場合もマクロなしの <code>.pptx</code> として保存され、マクロは引き継がれません。
+  </div>
+
+  <h3 class="text"><span class="dot"></span>CSV / TSV を 1 つの表に結合</h3>
+  <p>
+    複数の CSV を 1 枚の表につなぎます。
+    引用符で囲まれたカンマや改行を含むデータも壊しません。
+  </p>
+  <ul>
+    <li><b>[2 つ目以降の見出し行を繰り返さない]</b> … 1 行目が前のファイルと同じ見出しだったときだけ読み飛ばします。中身が違えばデータ行として扱うので、誤って 1 行消える心配はありません。</li>
+    <li><b>[元のファイル名を見出しとして入れる]</b> … 末尾に <code>元ファイル</code> 列を足し、どのファイル由来かを残します。</li>
+  </ul>
+  <p>保存先の拡張子を <code>.tsv</code> にすると、タブ区切りで書き出します。</p>
+
+  <h3 class="text"><span class="dot"></span>テキストとして結合</h3>
+  <p>
+    テキスト系のファイルを順につなぎます。
+    [元のファイル名を見出しとして入れる] をオンにすると、各ファイルの先頭に区切り線とファイル名が入るので、
+    あとからどこが境目か分かります。ログの集約や、原稿の統合に向いています。
+  </p>
+
+  <h3><span class="dot"></span>そのまま連結（バイナリ）</h3>
+  <p>
+    中身を解釈せず、先頭から順にバイト列としてつなぎます。
+    <code>.001</code> <code>.002</code> のように分割されたファイルを元に戻すときに使います。
+  </p>
+  <div class="warn">
+    <b>形式のあるファイルには使えません</b>
+    MP4 や ZIP、Office 文書などをこの方法でつないでも、再生・展開できないファイルになります。
+    分割ファイルの復元用と考えてください。
+  </div>
+</section>
+
+<section id="options">
+  <h2>オプションの意味</h2>
+  <p>選んだ統合方法に関係のないオプションは自動で灰色になります。文言も方法に合わせて変わります。</p>
+  <table>
+    <thead><tr><th>オプション</th><th>効く統合方法</th><th>意味</th></tr></thead>
+    <tbody>
+      <tr>
+        <td>元のファイル名を見出しとして入れる</td>
+        <td>テキスト / CSV / Excel</td>
+        <td>テキストでは区切り線とファイル名、CSV と Excel では <code>元ファイル</code> 列、Excel の横並びではブロック上の見出しになります。</td>
+      </tr>
+      <tr>
+        <td>2 つ目以降の見出し行を繰り返さない</td>
+        <td>CSV / Excel（列の位置どおり）</td>
+        <td>先頭行が前のファイルと同じ見出しのときだけ読み飛ばします。</td>
+      </tr>
+      <tr>
+        <td>ファイルの区切りで改ページ・空行を入れる</td>
+        <td>Word / テキスト / Excel</td>
+        <td>Word は改ページ、テキストは空行、Excel の縦連結は空行、横並びは空列を入れます。集計に回すデータでは切っておくのが無難です。</td>
+      </tr>
+      <tr>
+        <td>Excel の並べ方</td>
+        <td>Excel</td>
+        <td>4 つの連結方法の切り替え。前章の表を参照してください。</td>
+      </tr>
+      <tr>
+        <td>画像のページ</td>
+        <td>画像 → PDF</td>
+        <td>A4 に合わせるか、画像と同じ大きさのページにするか。</td>
+      </tr>
+      <tr>
+        <td>統合できたら保存先フォルダーを開く</td>
+        <td>すべて</td>
+        <td>完了後にエクスプローラーで結果のファイルを選択した状態で開きます。</td>
+      </tr>
+    </tbody>
+  </table>
+</section>
+
+<section id="encoding">
+  <h2>文字コードの扱い</h2>
+  <p>
+    テキストと CSV では文字コードの指定ができます。
+    [入力の文字コード] を [自動で判定する] にしておくと、次の順で判定します。
+  </p>
+  <ol>
+    <li>BOM（ファイル先頭の目印）があれば、それに従う</li>
+    <li>BOM がなければ、UTF-8 として正しく読めるか試す</li>
+    <li>読めなければ Shift_JIS として読む</li>
+  </ol>
+  <p>
+    この順序のおかげで、Windows で作った古い CSV と UTF-8 のファイルが混ざっていても、
+    1 ファイルずつ適切に読み分けられます。文字化けする場合だけ手動で指定してください。
+  </p>
+  <div class="note">
+    <b>Excel で開く CSV は Shift_JIS か BOM 付き UTF-8 で</b>
+    [出力の文字コード] を [UTF-8 (BOM なし)] にすると、Excel でダブルクリックして開いたときに
+    日本語が化けることがあります。Excel で開く予定なら
+    [UTF-8 (BOM 付き)]（既定）か [Shift_JIS] を選んでください。
+  </div>
+</section>
+
+<section id="faq">
+  <h2>よくある質問</h2>
+  <div class="faq">
+    <details>
+      <summary>種類の違うファイルをまとめて 1 つにできますか？</summary>
+      <p>
+        PDF と Word など、形式をまたぐ変換は行いません。
+        まず Word 側で PDF として書き出してから、PDF どうしを結合してください。
+        画像と PDF を混ぜたい場合も、画像を先に PDF にしてから結合します。
+      </p>
+    </details>
+    <details>
+      <summary>結合する順番はどこで決まりますか？</summary>
+      <p>
+        ファイル一覧の上から順です。追加した順に並ぶので、
+        [▲ 上へ] [▼ 下へ] または [名前順に並べ替え] で調整してください。
+        複数行を選択したまま動かすこともできます。
+      </p>
+    </details>
+    <details>
+      <summary>意図しない統合方法が選ばれます。</summary>
+      <p>
+        自動判定は拡張子だけを見ています。[統合方法] のドロップダウンから明示的に選べば、
+        判定より優先されます。
+      </p>
+    </details>
+    <details>
+      <summary>大量のファイルでも大丈夫ですか？</summary>
+      <p>
+        処理は別スレッドで動くので、途中でも画面が固まらず [中止] を押せます。
+        ただし PDF や Excel はファイル全体をメモリに読み込むため、
+        非常に大きなファイルを大量に扱うと時間とメモリを消費します。
+      </p>
+    </details>
+    <details>
+      <summary>統合したファイルが Word / PowerPoint で「修復が必要」と出ます。</summary>
+      <p>
+        元のファイルが破損しているか、他のアプリが開いたままロックしている可能性があります。
+        すべて閉じてからやり直してください。それでも直らない場合は、
+        どのファイルを外すと成功するかを 1 つずつ試すと原因を特定できます。
+      </p>
+    </details>
+    <details>
+      <summary>設定は保存されますか？</summary>
+      <p>
+        現在のバージョンでは保存しません。起動のたびに既定値から始まります。
+      </p>
+    </details>
+  </div>
+</section>
+
+<section id="limits">
+  <h2>制限事項</h2>
+  <ul>
+    <li><b>形式をまたぐ変換はしません。</b>同じ系統のファイルどうしをつなぐツールです。</li>
+    <li><b>PDF</b>：暗号化された PDF は開けません。しおりは引き継がれません。</li>
+    <li><b>Word</b>：2 つ目以降は Word が開いた時点で展開されます。ヘッダー・フッターは 1 つ目が優先されます。</li>
+    <li><b>PowerPoint</b>：スライドの比率は 1 つ目に統一されます。マクロは引き継がれません。</li>
+    <li><b>Excel</b>：縦・横連結は値のみを写します。シート別モードでは数式の参照先が別ブックのまま残ることがあります。</li>
+    <li><b>画像</b>：<code>.webp</code> は環境によって読み込めないことがあります。その場合は事前に PNG へ変換してください。</li>
+    <li><b>バイナリ連結</b>：形式を無視してつなぐだけなので、コンテナ形式のファイルは壊れます。</li>
+  </ul>
+</section>
+
+<section id="extend">
+  <h2>統合方法を増やす（開発者向け）</h2>
+  <p>
+    統合方法は <code>IFileMerger</code> という 1 つのインターフェイスにまとまっています。
+    実装したクラスを <code>Mergers/</code> に置き、<code>Core/MergerRegistry.cs</code> の
+    <code>All</code> に追加するだけで、コンボボックス・自動判定・[扱えるファイルの一覧] のすべてに反映されます。
+  </p>
+<pre><code>public static IReadOnlyList&lt;IFileMerger&gt; All { get; } = new IFileMerger[]
+{
+    new PdfMerger(),
+    new ImageToPdfMerger(),
+    new ExcelMerger(),
+    new WordMerger(),
+    new PowerPointMerger(),
+    new CsvMerger(),
+    new TextMerger(),
+    new BinaryMerger()      // 受け皿なので必ず最後
+};</code></pre>
+  <p>
+    <code>All</code> の並び順が自動判定の照合順です。
+    対象を限定する方法ほど上に、受け皿になる方法ほど下に置いてください。
+  </p>
+  <p>
+    <code>MergerFeatures</code> フラグで「どのオプションが効くか」を宣言すると、
+    画面側が該当するコントロールだけを自動で有効にします。
+    画面のコードに手を入れる必要はありません。
+  </p>
+</section>
+
+</main>
+</div>
+
+<footer>
+  ファイル統合ツール マニュアル ／ 最新の対応ファイルはアプリの [ヘルプ] → [扱えるファイルの一覧]（F1）で確認できます。
+</footer>
+
+</body>
+</html>
