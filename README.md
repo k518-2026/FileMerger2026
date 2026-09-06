@@ -1,5 +1,9 @@
 # ファイル統合ツール（FileMerger）
 
+実行ファイルのダウンロード.
+https://github.com/k518-2026/FileMerger2026/releases
+
+
 複数のファイルを 1 つにまとめる Windows デスクトップアプリです。
 ファイルの種類を見て、適した統合方法を自動で選びます。
 
